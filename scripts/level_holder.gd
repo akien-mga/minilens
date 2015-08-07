@@ -64,12 +64,33 @@ func load_level(var pack, var level): # Load level N from pack P
 	if(has_music):
 		var random = abs(rand_seed(OS.get_unix_time())[1]) % musics_node.get_child_count()
 		musics_node.get_child(random).play()
+	if(global.phone_ctrl):
+		get_node("../gui/CanvasLayer/touch_buttons/mvt").hide()
+		get_node("../gui/CanvasLayer/touch_areas").show()
+	else:
+		get_node("../gui/CanvasLayer/touch_buttons/mvt").show()
+		get_node("../gui/CanvasLayer/touch_areas").hide()
 
 func window_resize():
 	var new_size = viewport.get_size_override()
 	var new_pos = Vector2((new_size.x-1024)/2,0)
 	get_node("../gui/CanvasLayer/popup").set_pos(Vector2(new_size.x/2-252,210))
-	get_node("../gui/CanvasLayer/touch_buttons").set_pos(Vector2(new_size.x-200,568))
+	if(global.phone_ctrl):
+		var areas = get_node("../gui/CanvasLayer/touch_areas")
+		var unit = Vector2(new_size.x/6, new_size.y/6)
+		var sides_scale = Vector2(unit.x/2,(new_size.y-2*unit.y)/2)
+		var updown_scale = Vector2((new_size.x-2*unit.x)/2,unit.y/2)
+		areas.get_node("area_left").set_pos(Vector2(0,unit.y))
+		areas.get_node("area_left").set_scale(sides_scale)
+		areas.get_node("area_right").set_pos(Vector2(new_size.x-unit.x,unit.y))
+		areas.get_node("area_right").set_scale(sides_scale)
+		areas.get_node("area_up").set_pos(Vector2(unit.x,0))
+		areas.get_node("area_up").set_scale(updown_scale)
+		areas.get_node("area_down").set_pos(Vector2(unit.x,new_size.y-unit.y))
+		areas.get_node("area_down").set_scale(updown_scale)
+		get_node("../gui/CanvasLayer/touch_buttons").set_pos(Vector2(new_size.x-1.5*unit.x,new_size.y-1.7*unit.y))
+	else:
+		get_node("../gui/CanvasLayer/touch_buttons").set_pos(Vector2(new_size.x-200,568))
 	var tilemap = level_node.get_node("tilemap")
 	for i in range(ceil(new_size.x/2/64)):
 		tilemap.set_cell(tile_map_acid_x_start - i, tile_map_acid_y, 2)
